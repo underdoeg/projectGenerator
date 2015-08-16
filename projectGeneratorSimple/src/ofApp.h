@@ -7,6 +7,7 @@
 #include "CBWinProject.h"
 #include "visualStudioProject.h"
 #include "xcodeProject.h"
+#include "CodeliteLinuxProject.h"
 #include <Poco/Path.h>
 
 #include "ofxGui.h"

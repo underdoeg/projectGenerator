@@ -29,6 +29,7 @@ public:
 	std::string getPath();
 
 	static std::string LOG_NAME;
+	string projectDirCodelite;
 
 private:
 

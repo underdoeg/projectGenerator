@@ -283,7 +283,7 @@ void ofApp::setup(){
     panelPlatforms.add(wincbToggle.setup("windows (codeblocks)",ofGetTargetPlatform()==OF_TARGET_WINGCC));
 	panelPlatforms.add(winvsToggle.setup("windows (visual studio)", ofGetTargetPlatform()==OF_TARGET_WINVS));
 	panelPlatforms.add(linuxcbToggle.setup("linux (codeblocks)",ofGetTargetPlatform()==OF_TARGET_LINUX));
-	panelPlatforms.add(linux64cbToggle.setup("linux64 (codeblocks)",ofGetTargetPlatform()==OF_TARGET_LINUX64));
+	panelPlatforms.add(linux64cbToggle.setup("linux64 (codelite)",ofGetTargetPlatform()==OF_TARGET_LINUX64));
 
 //for ios, we need to fake that the target is ios (since we're compiling w/ osx OF)
 

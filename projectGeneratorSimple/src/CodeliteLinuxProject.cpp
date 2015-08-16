@@ -13,17 +13,22 @@
 string CodeliteLinuxProject::LOG_NAME = "CodeliteLinuxProject";
 
 void CodeliteLinuxProject::setup() {
-    ;
+    templatePath = ofToDataPath("template-codelite-linux");
 }
 
 bool CodeliteLinuxProject::createProjectFile(){
 
     ofDirectory dir(projectDir);
 	if(!dir.exists()) dir.create(true);
-
-    ofFile project(ofFilePath::join(ofFilePath::join(projectDir, "codelite"), projectName + ".cbp"));
-    string src =  ofFilePath::join(ofFilePath::join(templatePath, "codelite"), "emptyExample.project");
-    string dst = ofFilePath::join(project.path(), "codelite");
+    
+    ofDirectory codeliteDir(ofFilePath::join(projectDir, "codelite"));
+	if(!codeliteDir.exists()) codeliteDir.create(true);
+    
+    string templatePathCodelite = ofFilePath::join(templatePath, "codelite");
+    
+    ofFile project(ofFilePath::join(codeliteDir.path(), projectName + ".project"));
+    string src =  ofFilePath::join(templatePathCodelite, "testApp.project");
+    string dst = project.path();
     bool ret;
 
     if(!project.exists()){
@@ -32,20 +37,34 @@ bool CodeliteLinuxProject::createProjectFile(){
 			ofLogError(LOG_NAME) << "error copying project template from " << src << " to " << dst;
 			return false;
 		}else{
-			findandreplaceInTexfile(dst, "emptyExample", projectName);
+			findandreplaceInTexfile(dst, "testApp", projectName);
 		}
     }
-
-    ofFile workspace(ofFilePath::join(projectDir, projectName + ".workspace"));
+    
+    ofFile ofLibProject(ofFilePath::join(codeliteDir.path(), "libOpenFrameworks.project"));
+    if(!ofLibProject.exists()){
+		src = ofFilePath::join(templatePathCodelite,"libOpenFrameworks.project");
+		dst = ofLibProject.path();
+		ret = ofFile::copyFromTo(src,dst);
+		if(!ret){
+			ofLogError(LOG_NAME) << "error copying of project template from "<< src << " to " << dst;
+			return false;
+		}else{
+			findandreplaceInTexfile(dst, "testApp", projectName);
+		}
+    }
+    
+    
+    ofFile workspace(ofFilePath::join(codeliteDir.path(), projectName + ".workspace"));
     if(!workspace.exists()){
-		src = ofFilePath::join(templatePath,"emptyExample_" + target + ".workspace");
+		src = ofFilePath::join(templatePathCodelite,"testApp.workspace");
 		dst = workspace.path();
 		ret = ofFile::copyFromTo(src,dst);
 		if(!ret){
 			ofLogError(LOG_NAME) << "error copying workspace template from "<< src << " to " << dst;
 			return false;
 		}else{
-			findandreplaceInTexfile(dst, "emptyExample", projectName);
+			findandreplaceInTexfile(dst, "testApp", projectName);
 		}
     }
 
@@ -74,12 +93,13 @@ bool CodeliteLinuxProject::createProjectFile(){
 
     // handle the relative roots.
     string relRoot = getOFRelPath(ofFilePath::removeTrailingSlash(projectDir));
-    if (relRoot != "../../../"){
+    if (relRoot != ".../../../../../../"){
         string relPath2 = relRoot;
         relPath2.erase(relPath2.end()-1);
-        findandreplaceInTexfile(projectDir + "config.make", "../../..", relPath2);
-        findandreplaceInTexfile(ofFilePath::join(projectDir , projectName + ".workspace"), "../../../", relRoot);
-        findandreplaceInTexfile(ofFilePath::join(projectDir , projectName + ".cbp"), "../../../", relRoot);
+        findandreplaceInTexfile(projectDir + "config.make", "../../../../../..", relPath2);
+        findandreplaceInTexfile(ofFilePath::join(projectDir , "codelite/"+projectName + ".workspace"), "../../../../../../..", relPath2+"/..");
+        findandreplaceInTexfile(ofFilePath::join(projectDir ,"codelite/"+ projectName + ".project"), "../../../../../../..", relPath2+"/..");
+        findandreplaceInTexfile(ofFilePath::join(projectDir , "codelite/libOpenFrameworks.project"), "../../../../../../..", relPath2+"/..");
     }
 
     return true;
@@ -89,7 +109,7 @@ bool CodeliteLinuxProject::loadProjectFile(){
 
     //project.open(ofFilePath::join(projectDir , projectName + ".cbp"));
 
-    ofFile project(projectDir + projectName + ".cbp");
+    ofFile project(ofFilePath::join(ofFilePath::join(projectDir, "codelite") , projectName + ".project"));
 	if(!project.exists()){
 		ofLogError(LOG_NAME) << "error loading" << project.path() << "doesn't exist";
 		return false;
@@ -100,32 +120,71 @@ bool CodeliteLinuxProject::loadProjectFile(){
 }
 
 bool CodeliteLinuxProject::saveProjectFile(){
-
-    findandreplaceInTexfile(ofFilePath::join(projectDir , projectName + ".workspace"),"emptyExample",projectName);
-    pugi::xpath_node_set title = doc.select_nodes("//Option[@title]");
+    
+    findandreplaceInTexfile(ofFilePath::join(ofFilePath::join(projectDir, "codelite") , projectName + ".workspace"), "testApp", projectName);
+    /*
+    findandreplaceInTexfile(ofFilePath::join(ofFilePath::join(projectDir, "codelite"), projectName + ".project"), "testApp", projectName);
+    pugi::xpath_node_set title = doc.select_nodes("//CodeLite_Workspace[@Name]");
     if(!title.empty()){
         if(!title[0].node().attribute("title").set_value(projectName.c_str())){
             ofLogError(LOG_NAME) << "can't set title";
         }
     }
-    return doc.save_file((projectDir + projectName + ".cbp").c_str());
+    */
+    
+    string projectPath = ofFilePath::join(ofFilePath::join(projectDir, "codelite") , projectName + ".project");
+    return doc.save_file(projectPath.c_str());
 }
 
 void CodeliteLinuxProject::addSrc(string srcName, string folder, SrcType type){
-	pugi::xml_node node = appendValue(doc, "Unit", "filename", srcName);
+    //std::string path = "//CodeLite_Project/VirtualDirectory[@Name='"+folder+"']";
+    
+    vector<string> paths = ofSplitString(folder, "/", true, true);
+    
+    pugi::xml_node pugiFolder = doc.child("CodeLite_Project");
+    
+    for(auto& path: paths){
+        pugi::xpath_node_set node_set = pugiFolder.select_nodes(("VirtualDirectory[@Name='"+path+"']").c_str());
+        if(!node_set.empty()){
+            pugiFolder = node_set[0].node();
+        }else{
+            pugiFolder = pugiFolder.append_child("VirtualDirectory");
+            pugiFolder.append_attribute("Name").set_value(path.c_str());
+        }
+    }
+    
+    
+    
+    string sourceRel = "../"+srcName;
+    
+    if(!pugiFolder.find_child_by_attribute("Name", sourceRel.c_str()))
+        pugiFolder.append_child("File").append_attribute("Name").set_value((sourceRel).c_str());
+    //fileNode.attribute("Name").set_value(srcName.c_str());
+    
+    /*
+    std::cout << "Document:\n";
+    doc.save(std::cout);
+    cout << endl;
+	/*
+	pugi::xml_node node = appendValue(doc, "VirtualDirectory", "Name", srcName);
 	if(!node.empty()){
 		node.child("Option").attribute("virtualFolder").set_value(folder.c_str());
 	}
+	*/
 }
 
 void CodeliteLinuxProject::addInclude(string includeName){
+    /*
     ofLogNotice() << "adding include " << includeName;
     appendValue(doc, "Add", "directory", includeName);
+    */
 }
 
 void CodeliteLinuxProject::addLibrary(string libraryName, LibType libType){
+    /*
     ofLogNotice() << "adding library " << libraryName;
     appendValue(doc, "Add", "library", libraryName, true);
+    */
     // overwriteMultiple for a lib if it's there (so libsorder.make will work)
     // this is because we might need to say libosc, then ws2_32
 }
