@@ -20,12 +20,12 @@ bool CodeliteLinuxProject::createProjectFile(){
 
     ofDirectory dir(projectDir);
 	if(!dir.exists()) dir.create(true);
-    
+
     ofDirectory codeliteDir(ofFilePath::join(projectDir, "codelite"));
 	if(!codeliteDir.exists()) codeliteDir.create(true);
-    
+
     string templatePathCodelite = ofFilePath::join(templatePath, "codelite");
-    
+
     ofFile project(ofFilePath::join(codeliteDir.path(), projectName + ".project"));
     string src =  ofFilePath::join(templatePathCodelite, "testApp.project");
     string dst = project.path();
@@ -40,7 +40,7 @@ bool CodeliteLinuxProject::createProjectFile(){
 			findandreplaceInTexfile(dst, "testApp", projectName);
 		}
     }
-    
+
     ofFile ofLibProject(ofFilePath::join(codeliteDir.path(), "libOpenFrameworks.project"));
     if(!ofLibProject.exists()){
 		src = ofFilePath::join(templatePathCodelite,"libOpenFrameworks.project");
@@ -53,8 +53,8 @@ bool CodeliteLinuxProject::createProjectFile(){
 			findandreplaceInTexfile(dst, "testApp", projectName);
 		}
     }
-    
-    
+
+
     ofFile workspace(ofFilePath::join(codeliteDir.path(), projectName + ".workspace"));
     if(!workspace.exists()){
 		src = ofFilePath::join(templatePathCodelite,"testApp.workspace");
@@ -115,12 +115,17 @@ bool CodeliteLinuxProject::loadProjectFile(){
 		return false;
 	}
 	pugi::xml_parse_result result = doc.load(project);
+	pugi::xml_node root = doc.child("CodeLite_Project");
+	pugi::xpath_node_set node_set = root.select_nodes(string("VirtualDirectory[@Name='addons']").c_str());
+    if(!node_set.empty()){
+        root.remove_child(node_set[0].node());
+    }
 	bLoaded =result.status==pugi::status_ok;
 	return bLoaded;
 }
 
 bool CodeliteLinuxProject::saveProjectFile(){
-    
+
     findandreplaceInTexfile(ofFilePath::join(ofFilePath::join(projectDir, "codelite") , projectName + ".workspace"), "testApp", projectName);
     /*
     findandreplaceInTexfile(ofFilePath::join(ofFilePath::join(projectDir, "codelite"), projectName + ".project"), "testApp", projectName);
@@ -131,18 +136,18 @@ bool CodeliteLinuxProject::saveProjectFile(){
         }
     }
     */
-    
+
     string projectPath = ofFilePath::join(ofFilePath::join(projectDir, "codelite") , projectName + ".project");
     return doc.save_file(projectPath.c_str());
 }
 
 void CodeliteLinuxProject::addSrc(string srcName, string folder, SrcType type){
     //std::string path = "//CodeLite_Project/VirtualDirectory[@Name='"+folder+"']";
-    
+
     vector<string> paths = ofSplitString(folder, "/", true, true);
-    
+
     pugi::xml_node pugiFolder = doc.child("CodeLite_Project");
-    
+
     for(auto& path: paths){
         pugi::xpath_node_set node_set = pugiFolder.select_nodes(("VirtualDirectory[@Name='"+path+"']").c_str());
         if(!node_set.empty()){
@@ -152,15 +157,15 @@ void CodeliteLinuxProject::addSrc(string srcName, string folder, SrcType type){
             pugiFolder.append_attribute("Name").set_value(path.c_str());
         }
     }
-    
-    
-    
+
+
+
     string sourceRel = "../"+srcName;
-    
+
     if(!pugiFolder.find_child_by_attribute("Name", sourceRel.c_str()))
         pugiFolder.append_child("File").append_attribute("Name").set_value((sourceRel).c_str());
     //fileNode.attribute("Name").set_value(srcName.c_str());
-    
+
     /*
     std::cout << "Document:\n";
     doc.save(std::cout);
@@ -178,6 +183,7 @@ void CodeliteLinuxProject::addInclude(string includeName){
     ofLogNotice() << "adding include " << includeName;
     appendValue(doc, "Add", "directory", includeName);
     */
+    //cout << "A NEW INCLUDE " << includeName << endl;
 }
 
 void CodeliteLinuxProject::addLibrary(string libraryName, LibType libType){
