@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeLite_Workspace Name="testApp" Database="" SWTLW="No">
+  <Project Name="libOpenFrameworks" Path="libOpenFrameworks.project" Active="No"/>
+  <Project Name="testApp" Path="testApp.project" Active="Yes"/>
+  <BuildMatrix>
+    <WorkspaceConfiguration Name="Debug" Selected="yes">
+      <Project Name="libOpenFrameworks" ConfigName="Debug"/>
+      <Project Name="testApp" ConfigName="Debug"/>
+    </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="Release" Selected="yes">
+      <Project Name="libOpenFrameworks" ConfigName="Release"/>
+      <Project Name="testApp" ConfigName="Release"/>
+    </WorkspaceConfiguration>
+  </BuildMatrix>
+</CodeLite_Workspace>

@@ -62,3 +62,6 @@ Desktop.ini
  
 # Miscellaneous
 .mailmap
+
+/projectGeneratorSimple/bin/data/template-codelite-linux/codelite/.codelite/*
+/projectGeneratorSimple/bin/data/template-codelite-linux/codelite/.tern*

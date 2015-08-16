@@ -95,11 +95,11 @@ string ofApp::setupForTarget(int targ){
         case OF_TARGET_ANDROID:
             break;
         case OF_TARGET_LINUX64:
-            project = new CBLinuxProject;
+            project = new CodeliteLinuxProject;
             target = "linux64";
             break;
         case OF_TARGET_LINUX:
-            project = new CBLinuxProject;
+            project = new CodeliteLinuxProject;
             target = "linux";
             break;
     }
