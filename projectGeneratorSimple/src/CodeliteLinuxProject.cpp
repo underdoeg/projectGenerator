@@ -186,7 +186,7 @@ void CodeliteLinuxProject::addInclude(string includeName){
     //cout << "A NEW INCLUDE " << includeName << endl;
 }
 
-void CodeliteLinuxProject::addLibrary(string libraryName, LibType libType){
+void CodeliteLinuxProject::addLibrary(const LibraryBinary & lib){
     /*
     ofLogNotice() << "adding library " << libraryName;
     appendValue(doc, "Add", "library", libraryName, true);
