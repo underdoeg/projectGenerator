@@ -30,7 +30,7 @@ bool CodeliteLinuxProject::createProjectFile(){
     string src =  ofFilePath::join(templatePathCodelite, "testApp.project");
     string dst = project.path();
     bool ret;
-
+		
     if(!project.exists()){
 		ret = ofFile::copyFromTo(src,dst);
 		if(!ret){
@@ -179,17 +179,19 @@ void CodeliteLinuxProject::addSrc(string srcName, string folder, SrcType type){
 }
 
 void CodeliteLinuxProject::addInclude(string includeName){
-    /*
+    
     ofLogNotice() << "adding include " << includeName;
-    appendValue(doc, "Add", "directory", includeName);
+    /*
+	appendValue(doc, "Add", "directory", includeName);
     */
     //cout << "A NEW INCLUDE " << includeName << endl;
 }
 
 void CodeliteLinuxProject::addLibrary(const LibraryBinary & lib){
+    
+    ofLogNotice() << "adding library " << lib.path;
     /*
-    ofLogNotice() << "adding library " << libraryName;
-    appendValue(doc, "Add", "library", libraryName, true);
+	appendValue(doc, "Add", "library", libraryName, true);
     */
     // overwriteMultiple for a lib if it's there (so libsorder.make will work)
     // this is because we might need to say libosc, then ws2_32
@@ -201,4 +203,8 @@ string CodeliteLinuxProject::getName(){
 
 string CodeliteLinuxProject::getPath(){
 	return projectDir;
+}
+
+std::string CodeliteLinuxProject::getPlatformTemplateDir(){
+	return ofToDataPath("template-codelite-linux");
 }

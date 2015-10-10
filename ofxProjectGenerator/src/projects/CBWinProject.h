@@ -5,23 +5,22 @@
  *      Author: arturo
  */
 
-#ifndef CODELITELINUXROJECT_H_
-#define CODELITELINUXROJECT_H_
+#ifndef CBWINPROJECT_H_
+#define CBWINPROJECT_H_
 
 #include "ofConstants.h"
 #include "ofAddon.h"
 #include "baseProject.h"
 
-class CodeliteLinuxProject: virtual public baseProject  {
+class CBWinProject: public baseProject  {
 public:
-
-    void setup();
+    CBWinProject(std::string target):baseProject(target){};
 
     bool createProjectFile();
     bool loadProjectFile();
     bool saveProjectFile();
 
-	void addSrc(std::string srcName, string folder, SrcType type=DEFAULT);
+	void addSrc(std::string srcName, std::string folder, SrcType type=DEFAULT);
 	void addInclude(std::string includeName);
 	void addLibrary(const LibraryBinary & lib);
 
@@ -29,10 +28,9 @@ public:
 	std::string getPath();
 
 	static std::string LOG_NAME;
-	string projectDirCodelite;
 
 private:
 
 };
 
-#endif /* CODELITELINUXROJECT_H_ */
+#endif /* CBLINUXPROJECT_H_ */

@@ -26,6 +26,8 @@
 #   GTK is installed, one might test that here and create a variable to check. 
 ################################################################################
 # None
+APPNAME = projectGenerator
+PROJECT_AFTER_OSX = cp "$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/$PRODUCT_NAME" "$TARGET_BUILD_DIR/commandLinePG"; rm -rf "$TARGET_BUILD_DIR/$PRODUCT_NAME.app";	mv "$TARGET_BUILD_DIR/commandLinePG" "$TARGET_BUILD_DIR/projectGenerator"
 
 ################################################################################
 # PROJECT EXTERNAL SOURCE PATHS
@@ -128,7 +130,7 @@
 #
 #   Note: Leave a leading space when adding list items with the += operator
 ################################################################################
-# PROJECT_OPTIMIZATION_CFLAGS_RELEASE = 
+PROJECT_OPTIMIZATION_CFLAGS_RELEASE = -O3
 # PROJECT_OPTIMIZATION_CFLAGS_DEBUG = 
 
 ################################################################################
@@ -140,5 +142,3 @@
 ################################################################################
 # PROJECT_CXX = 
 # PROJECT_CC = 
-
-APPNAME = projectGenerator
