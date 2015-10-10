@@ -14,6 +14,7 @@
 
 class CodeliteLinuxProject: virtual public baseProject  {
 public:
+    CodeliteLinuxProject(std::string target):baseProject(target){};
 
     void setup();
 
@@ -24,6 +25,8 @@ public:
 	void addSrc(std::string srcName, string folder, SrcType type=DEFAULT);
 	void addInclude(std::string includeName);
 	void addLibrary(const LibraryBinary & lib);
+	
+	std::string getPlatformTemplateDir();
 
 	std::string getName();
 	std::string getPath();
